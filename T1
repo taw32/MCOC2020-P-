@@ -30,23 +30,22 @@ inch=2.54*cm
 g=9.81   
 
 #coeficiente de arrastre
-ro=1.225     
+rho=1.225     
 cd=0.47
 D=8.5*inch
 r=D/2
 A=sp.pi*r**2
-CD=0.5*ro*cd*A
+CD=0.5*rho*cd*A
 
 #masa
-m=15 #kg
-#viento
+m=15 
 
-V1= [0.,10.,20.]  #m/s
+
+V1= [0.,10.,20.] 
 for V in V1:
     t = sp.linspace(0,30,1001)
-    #Parte en el origen
 
-    vi=100*1000./3600. #600 km/h
+    vi=100*1000./3600.
     z0 = sp.array([0,0,vi,vi,])
 
     sol = odeint(bala,z0,t)
