@@ -1,0 +1,74 @@
+from scipy.integrate import odeint
+from  matplotlib.pylab import *
+import numpy as sp
+
+hr = 3600 #s
+km = 1e3 # m
+Radio = 6371 * km
+Mt = 5.972e24 # kg
+G = 6.67468e-11 #m3 kg-1 s-2
+omega= 7.2921150e-5 # radianes/s
+HG = 700 * km
+r = (6371 + 700)*1000 #mts
+FgMax = G*Mt/Radio**2
+
+def zpunto(z,t):
+    zp = sp.zeros(6)
+    c = sp.cos(omega*t)
+    s = sp.sin(omega*t)
+    R = sp.array([[c,-s,0],
+                [s,c,0],
+                [0,0,1]])
+    Rp = omega * sp.array([[-s,-c,0],
+                           [c,-s,0],
+                           [0,0,0]])
+    Rpp = (omega**2)*sp.array([[-c,s,0],
+                               [-s,-c,0],
+                               [0,0,0]])
+    
+    z1 = z[0:3]
+    z2 = z[3:6]
+    Fg = (-G*Mt/r**2) * (R@(z1/r))
+    zp[0:3] = z2
+    zp[3:6] = R.T@(Fg - (2*(Rp@z2)+(Rpp@z1)))
+    
+    return zp
+from datetime import datetime
+ti="2018-08-14T22:59:42.000000"
+ti = ti.split("T")
+ti = "{} {}".format(ti[0], ti[1])
+ti = datetime.strptime(ti, "%Y-%m-%d %H:%M:%S.%f")
+tf="2018-08-16T01:00:19.000000"
+tf = tf.split("T")
+tf = "{} {}".format(tf[0], tf[1])
+tf = datetime.strptime(tf,"%Y-%m-%d %H:%M:%S.%f")
+difT = (tf-ti).total_seconds()
+
+x=2083293.582654
+y=-6380690.028717
+z=-2250417.463178
+vx=-805.237768
+vy=-2737.127661
+vz=7035.393528
+
+xf=1010095.475188
+yf=-123073.229951
+zf=-7008913.872221
+vxf=-1887.279838
+vyf=-7324.093741
+vzf=-143.308102
+
+t = sp.linspace(0, difT,9540)
+
+
+t = sp.linspace(0, 5.*hr, 1001)
+x0 = Radio + HG
+# vt = 6820
+vt = 7856
+z0 =  sp.array([x0,0,0,0,vt,0])
+sol = odeint(zpunto, z0, t)
+
+x = sol[:,0:3]
+pos_final = sp.array([xf,yf,zf,vxf,vyf,vzf]) - sol[-1]
+for el in pos_final:
+    print (el)
